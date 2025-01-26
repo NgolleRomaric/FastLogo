@@ -4,6 +4,7 @@ import Image from "next/image";
 import IconPicker from "./components/IconPicker";
 import { useState } from "react";
 import { Download, icons } from "lucide-react";
+import ColorPicker from "./components/ColorPicker";
 
 type IconName = keyof typeof icons;
 
@@ -19,10 +20,15 @@ export default function Home() {
   const [IconRotation, setIconRotation] = useState<number>(0);
   const [Shadow, setShadow] = useState<string>("shadow-none");
   const [shadowNumber, setShadowNumber] = useState<number>(0);
-  const [Radius, setRadius] = useState<number>(12);
+  const [Radius, setRadius] = useState<number>(80);
   const [activeTab, setActiveTab] = useState<"stroke" | "background" | "fill">(
     "stroke"
   );
+  const [iconStrokeColor, setIconStrokeColor] = useState<string>("white");
+  const [backgroundColor, setBackgroundColor] = useState<string>(
+    "linear-gradient(45deg, rgba(2,0,36,1) 0%, RGBA(9, 61, 121, 1) 35%, rgba(0,212,255,1) 100%)"
+  );
+  const [fillColor, setFillColor] = useState<string>("black");
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIconSize(parseInt(e.target.value));
@@ -62,6 +68,12 @@ export default function Home() {
     setRadius(parseInt(e.target.value));
   };
 
+  const getBackgroundStyle = () => {
+    return backgroundColor.startsWith("linear-gradient")
+      ? { background: backgroundColor }
+      : { backgroundColor: backgroundColor };
+  };
+
   return (
     <div>
       <section className="flex flex-col md:flex-row md:justify-between">
@@ -74,7 +86,7 @@ export default function Home() {
               }`}
               onClick={() => setActiveTab("stroke")}
             >
-              Arrière-plan
+              Bordure
             </button>
             <button
               className={`btn w-1/3 ${
@@ -82,7 +94,7 @@ export default function Home() {
               }`}
               onClick={() => setActiveTab("background")}
             >
-              Remplissage
+              Arrière-plan
             </button>
             <button
               className={`btn w-1/3 ${
@@ -90,11 +102,33 @@ export default function Home() {
               }`}
               onClick={() => setActiveTab("fill")}
             >
-              Bordure
+              Remplissage
             </button>
           </div>
 
-          <div>//selecteur de couleur</div>
+          <div>
+            {activeTab === "stroke" && (
+              <ColorPicker
+                color={iconStrokeColor}
+                allowGradient={false}
+                onColorChange={setIconStrokeColor}
+              />
+            )}
+            {activeTab === "background" && (
+              <ColorPicker
+                color={backgroundColor}
+                allowGradient={true}
+                onColorChange={setBackgroundColor}
+              />
+            )}
+            {activeTab === "fill" && (
+              <ColorPicker
+                color={fillColor}
+                allowGradient={false}
+                onColorChange={setFillColor}
+              />
+            )}
+          </div>
         </div>
 
         {/* Middle column */}
@@ -108,7 +142,7 @@ export default function Home() {
                 className="w-10 h-10"
                 alt="Logo"
               />
-              <span className="text-secondary ml-2">e</span>Logo
+              <span className="text-secondary ml-2">Fast</span>Logo
             </div>
             <div className="flex items-center">
               <IconPicker
@@ -125,7 +159,7 @@ export default function Home() {
             <div
               id="iconContainer"
               className={`w-[450px] h-[450px] flex justify-center items-center ${Shadow}`}
-              style={{ borderRadius: `${Radius}px` }}
+              style={{ ...getBackgroundStyle(), borderRadius: `${Radius}px` }}
             >
               {" "}
               {SelectedIconComponent && (
@@ -133,6 +167,8 @@ export default function Home() {
                   size={IconSize}
                   style={{
                     strokeWidth: IconStrokeWidth,
+                    fill: fillColor,
+                    stroke: iconStrokeColor,
                     display: "block",
                     transform: `rotate(${IconRotation}deg)`,
                   }}
