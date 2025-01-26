@@ -1,101 +1,231 @@
+"use client";
+
 import Image from "next/image";
+import IconPicker from "./components/IconPicker";
+import { useState } from "react";
+import { Download, icons } from "lucide-react";
+
+type IconName = keyof typeof icons;
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedIcon, setSelectedIcon] = useState<string>("Apple");
+  const SelectedIconComponent =
+    selectedIcon && icons[selectedIcon as IconName]
+      ? icons[selectedIcon as IconName]
+      : null;
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [IconSize, setIconSize] = useState<number>(200);
+  const [IconStrokeWidth, setIconStrokeWidth] = useState<number>(3);
+  const [IconRotation, setIconRotation] = useState<number>(0);
+  const [Shadow, setShadow] = useState<string>("shadow-none");
+  const [shadowNumber, setShadowNumber] = useState<number>(0);
+  const [Radius, setRadius] = useState<number>(12);
+  const [activeTab, setActiveTab] = useState<"stroke" | "background" | "fill">(
+    "stroke"
+  );
+
+  const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIconSize(parseInt(e.target.value));
+  };
+  const handleIconStrokeWidthChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setIconStrokeWidth(parseInt(e.target.value));
+  };
+  const handleIconRotationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIconRotation(parseInt(e.target.value));
+  };
+  const handleShadowChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    setShadowNumber(value);
+
+    switch (value) {
+      case 25:
+        setShadow("shadow-sm");
+        break;
+      case 50:
+        setShadow("shadow-md");
+        break;
+      case 75:
+        setShadow("shadow-lg");
+        break;
+      case 100:
+        setShadow("shadow-2xl");
+        break;
+      default:
+        setShadow("shadow-none");
+        break;
+    }
+  };
+
+  const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRadius(parseInt(e.target.value));
+  };
+
+  return (
+    <div>
+      <section className="flex flex-col md:flex-row md:justify-between">
+        {/* Left column */}
+        <div className="md:w-1/4 p-5">
+          <div className="flex items-center justify-center space-x-2 mb-4 w-full">
+            <button
+              className={`btn w-1/3 ${
+                activeTab === "stroke" ? "btn-secondary" : ""
+              }`}
+              onClick={() => setActiveTab("stroke")}
+            >
+              Arrière-plan
+            </button>
+            <button
+              className={`btn w-1/3 ${
+                activeTab === "background" ? "btn-secondary" : ""
+              }`}
+              onClick={() => setActiveTab("background")}
+            >
+              Remplissage
+            </button>
+            <button
+              className={`btn w-1/3 ${
+                activeTab === "fill" ? "btn-secondary" : ""
+              }`}
+              onClick={() => setActiveTab("fill")}
+            >
+              Bordure
+            </button>
+          </div>
+
+          <div>//selecteur de couleur</div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Middle column */}
+        <div className="md:w-2/4 flex justify-center items-center h-screen bg-[url('/file.svg')] bg-cover bg-center border border-base-200 pt-4 relative">
+          <div className="flex items-center justify-between absolute top-0 left-0 bg-base-100 z-50 w-full p-3">
+            <div className="flex items-center font-bold italic text-2xl">
+              <Image
+                src="/logo.png"
+                width={500}
+                height={500}
+                className="w-10 h-10"
+                alt="Logo"
+              />
+              <span className="text-secondary ml-2">e</span>Logo
+            </div>
+            <div className="flex items-center">
+              <IconPicker
+                onIconSelect={setSelectedIcon}
+                selected={selectedIcon}
+              />
+              <button className="btn ml-5">
+                Télécharger <Download className="w-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-neutral-content/10 hover:bg-neutral-content/20 aspect-square border-2 border-base-300 hover:border-neutral/15 border-dashed p-5 md:p-20">
+            <div
+              id="iconContainer"
+              className={`w-[450px] h-[450px] flex justify-center items-center ${Shadow}`}
+              style={{ borderRadius: `${Radius}px` }}
+            >
+              {" "}
+              {SelectedIconComponent && (
+                <SelectedIconComponent
+                  size={IconSize}
+                  style={{
+                    strokeWidth: IconStrokeWidth,
+                    display: "block",
+                    transform: `rotate(${IconRotation}deg)`,
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="md:w-1/4 p-5">
+          {/* Taille */}
+          <div className="mt-4">
+            <div className="flex justify-between mb-3 text-gray-500">
+              <label className="badge badge-ghost">Taille</label>
+              <span>{IconSize} px</span>
+            </div>
+            <input
+              type="range"
+              min="95"
+              max="300"
+              value={IconSize}
+              onChange={handleIconChange}
+              className="range"
+            />
+          </div>
+
+          {/* Bordure */}
+          <div className="mt-4">
+            <div className="flex justify-between mb-3 text-gray-500">
+              <label className="badge badge-ghost">Bordure</label>
+              <span>{IconStrokeWidth}px</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="4"
+              value={IconStrokeWidth}
+              onChange={handleIconStrokeWidthChange}
+              className="range"
+            />
+          </div>
+
+          {/* Rotation */}
+          <div className="mt-4">
+            <div className="flex justify-between mb-3 text-gray-500">
+              <label className="badge badge-ghost">Rotation</label>
+              <span>{IconRotation} °</span>
+            </div>
+            <input
+              type="range"
+              min="-180"
+              max="180"
+              value={IconRotation}
+              onChange={handleIconRotationChange}
+              className="range"
+            />
+          </div>
+
+          {/* Ombre */}
+          <div className="mt-4">
+            <div className="flex justify-between mb-3 text-gray-500">
+              <label className="badge badge-ghost">Ombre</label>
+              <span>{Shadow.replace("shadow-", "")}</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step={25}
+              value={shadowNumber}
+              onChange={handleShadowChange}
+              className="range"
+            />
+          </div>
+
+          {/* Arrondi */}
+          <div className="mt-4">
+            <div className="flex justify-between mb-3 text-gray-500">
+              <label className="badge badge-ghost">Arrondi</label>
+              <span>{Radius} px</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="300"
+              value={Radius}
+              onChange={handleRadiusChange}
+              className="range"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
