@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Download, icons } from "lucide-react";
 import ColorPicker from "./components/ColorPicker";
 import React from "react";
+import domtoimage from "dom-to-image";
 
 type IconName = keyof typeof icons;
 
@@ -30,6 +31,8 @@ export default function Home() {
     "linear-gradient(45deg, rgba(2,0,36,1) 0%, RGBA(9, 61, 121, 1) 35%, rgba(0,212,255,1) 100%)"
   );
   const [fillColor, setFillColor] = useState<string>("black");
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [downloadCompleted, setDownloadCompleted] = useState<boolean>(false);
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIconSize(parseInt(e.target.value));
@@ -223,6 +226,45 @@ export default function Home() {
     },
   ];
 
+  const handlePresetSelected = (preset: (typeof logoPresets)[0]) => {
+    setSelectedIcon(preset.icon);
+    setIconSize(preset.iconSize);
+    setIconStrokeWidth(preset.iconStrokeWidth);
+    setIconRotation(preset.iconRotation);
+    setRadius(preset.radius * 6);
+    setBackgroundColor(preset.backgroundColor);
+    setFillColor(preset.fillColor);
+    setIconStrokeColor(preset.iconStrokeColor);
+  };
+
+  const handleDownloadImage = (format: "png" | "svg") => {
+    setIsDownloading(true);
+    setDownloadCompleted(false);
+    const element = document.getElementById("iconContainer");
+    if (element) {
+      let imagePromise;
+      if (format == "svg") {
+        imagePromise = domtoimage.toSvg(element, { bgcolor: undefined });
+      } else {
+        imagePromise = domtoimage.toPng(element, { bgcolor: undefined });
+      }
+
+      imagePromise
+        .then((dataUrl: string) => {
+          const link = document.createElement("a");
+          link.download = `logo.${format}`;
+          link.href = dataUrl;
+          link.click();
+          setIsDownloading(false);
+          setDownloadCompleted(true);
+        })
+        .catch((error: any) => {
+          console.error(error);
+          setIsDownloading(false);
+        });
+    }
+  };
+
   return (
     <div>
       <section className="flex flex-col md:flex-row md:justify-between">
@@ -298,7 +340,18 @@ export default function Home() {
                 onIconSelect={setSelectedIcon}
                 selected={selectedIcon}
               />
-              <button className="btn ml-5">
+              <button
+                className="btn ml-5"
+                onClick={() => {
+                  const m = document.getElementById(
+                    "my_modal_1"
+                  ) as HTMLDialogElement;
+                  if (m) {
+                    m.showModal();
+                    setDownloadCompleted(false);
+                  }
+                }}
+              >
                 Télécharger <Download className="w-4" />
               </button>
             </div>
@@ -414,10 +467,13 @@ export default function Home() {
             <h3 className="text-lg font-bold mb-4">Préréglage</h3>
             <div className="flex flex-wrap gap-2">
               {logoPresets.map((preset) => (
-                <div key={preset.id} className="pointer">
+                <div
+                  key={preset.id}
+                  className="cursor-pointer"
+                  onClick={() => handlePresetSelected(preset)}
+                >
                   <div
-                    id="iconContainer"
-                    className={`w-16 h-16 flex justify-center items-center ${Shadow}`}
+                    className={`w-16 h-16 flex justify-center items-center`}
                     style={{
                       ...getPresetBackgroundStyle(preset.backgroundColor),
                       borderRadius: `${preset.radius}px`,
@@ -429,11 +485,11 @@ export default function Home() {
                         {
                           size: 30,
                           style: {
-                            strokeWidth: IconStrokeWidth,
+                            strokeWidth: preset.iconStrokeWidth,
                             fill: preset.fillColor,
                             stroke: preset.iconStrokeColor,
                             display: "block",
-                            transform: `rotate(${IconRotation}deg)`,
+                            transform: `rotate(${preset.iconRotation}deg)`,
                           },
                         }
                       )}
@@ -444,6 +500,51 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* You can open the modal using document.getElementById('ID').showModal() method */}
+
+      <dialog id="my_modal_1" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            {/* if there is a button in form, it will close the modal */}
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+
+          {isDownloading ? (
+            <div className="flex justify-center">
+              <progress className="progress w-full progress-secondary my-20"></progress>
+            </div>
+          ) : downloadCompleted ? (
+            <div className="text-center my-4">
+              <p className="text-md font-bold">
+                Le téléchargement est terminé avec success
+              </p>
+            </div>
+          ) : (
+            <div>
+              <h3 className="font-bold text-lg text-center mb-4">
+                Choisissez un format
+              </h3>
+              <div className="space-x-3 flex justify-center">
+                <button
+                  className="btn"
+                  onClick={() => handleDownloadImage("png")}
+                >
+                  PNG
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => handleDownloadImage("svg")}
+                >
+                  SVG
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </dialog>
     </div>
   );
 }
